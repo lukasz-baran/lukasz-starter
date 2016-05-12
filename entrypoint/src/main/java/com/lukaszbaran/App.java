@@ -24,7 +24,7 @@ public class App {
             // If you are using any other database then load the right driver here.
             con = DriverManager.getConnection(Constants.DB_CONNECTION);
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("select name from przystanek");
+            ResultSet rs = stmt.executeQuery("select name from przewoznik");
 
             while (rs.next()) {
                 //System.out.println("Name= " + rs.getString("Name") + " CountryCode= " + rs.getString("CountryCode"));
