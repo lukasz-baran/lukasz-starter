@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.0.xsd">
+
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url">
+            jdbc:mysql://localhost:3306/lukasz?autoReconnect=true&useSSL=false&user=lukaszb&password=k0szmar&serverTimezone=UTC
+            <value>jdbc:hsqldb:mem:testDB;sql.syntax_ora=true</value>
+        </property>
+        <property name="username" value="lukaszb"/>
+        <property name="password" value="k0szmar"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxActive" value="20"/>
+        <property name="maxIdle" value="10"/>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="annotatedTransactionManager">
+        <tx:attributes>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <bean id="annotatedTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="annotatedSessionFactory"/>
+    </bean>
+
+    <bean name="annotatedSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+                <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.jdbc.batch_size">30</prop>
+            </props>
+        </property>
+        <property name="configurationClass" value="org.hibernate.cfg.Configuration" />
+        <property name="annotatedClasses">
+            <list>
+                <value>com.lukaszbaran.starter.api.Przewoznik</value>
+            </list>
+        </property>
+    </bean>
+
+    <aop:config>
+        <aop:pointcut id="hibernatePointcut"
+                      expression="execution(public * com.sabre.ems.dao..*.*(..))"/>
+
+        <aop:advisor advice-ref="txAdvice"
+                     pointcut-ref="hibernatePointcut"/>
+
+        <aop:aspect ref="timeoutInterceptor">
+            <aop:around pointcut-ref="hibernatePointcut"
+                        method="invoke"/>
+        </aop:aspect>
+
+        <aop:aspect ref="retryInterceptor">
+            <aop:around pointcut-ref="hibernatePointcut"
+                        method="invoke"/>
+        </aop:aspect>
+    </aop:config>
+
+<!--
+    <bean name="timeoutInterceptor"
+          class="com.sabre.ems.dao.HibernateTimeoutInterceptor">
+        <property name="factory" ref="annotatedSessionFactory"/>
+        <property name="timeout" value="30"/>
+    </bean>
+
+    <bean name="retryInterceptor"
+          class="com.sabre.ems.dao.HibernateRetryInterceptor">
+        <property name="retries" value="3"/>
+        <property name="sleepBetweenRetries" value="3"/>
+    </bean>
+-->
+
+    <bean name="przewoznikDAO" class="com.lukaszbaran.starter.dao.impl.PrzewoznikDAO">
+        <constructor-arg ref="annotatedSessionFactory"/>
+    </bean>
+
+
+</beans>
