@@ -17,4 +17,5 @@ public class Przewoznik {
     @Column(name = "NAME", nullable = true, length = 255)
     private String name;
 
+
 }

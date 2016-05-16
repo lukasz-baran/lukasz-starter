@@ -15,6 +15,7 @@
         <module>starter-dao</module>
         <module>starter-api</module>
         <module>starter-ui</module>
+        <module>starter-watcher</module>
     </modules>
 
     <properties>
