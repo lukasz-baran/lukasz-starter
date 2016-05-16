@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.List;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
@@ -18,7 +19,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 public class DirectoryWatcher implements InitializingBean, Runnable {
     private static final Logger LOGGER = Logger.getLogger(DirectoryWatcher.class);
     private final WatchService watcher;
-    private String dir2watch;
+    private List<CameraDescription> dir2watch;
 
     private DirectoryWatcherListener listener;
 
@@ -41,11 +42,13 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
             LOGGER.error("cannot start watching (null)");
             return;
         }
-        Path dir = Paths.get(dir2watch);
-        try {
-            WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE,ENTRY_MODIFY);
-        } catch (IOException x) {
-            LOGGER.error("unable to register event", x);
+        for (CameraDescription desc : dir2watch) {
+            Path dir = Paths.get(desc.getDirectory());
+            try {
+                WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+            } catch (IOException x) {
+                LOGGER.error("unable to register event", x);
+            }
         }
     }
 
@@ -81,7 +84,7 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
         }
     }
 
-    public void setDir2watch(String dir2watch) {
+    public void setDir2watch(List<CameraDescription> dir2watch) {
         this.dir2watch = dir2watch;
     }
 

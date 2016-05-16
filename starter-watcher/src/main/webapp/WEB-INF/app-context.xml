@@ -13,6 +13,11 @@
 
     <context:property-placeholder location="classpath*:watcher.properties"/>
 
+    <bean id="cameraStrych" class="com.lukaszbaran.starter.watcher.CameraDescription">
+        <constructor-arg index="0" value="strych"/>
+        <constructor-arg index="1" value="/home/barranek/kamera/192.168.1.11_001212a67271"/>
+    </bean>
+
     <bean id="watcher" class="com.lukaszbaran.starter.watcher.DirectoryWatcher">
         <property name="dir2watch" value="${starter.watcher.dir2watch}" />
     </bean>
