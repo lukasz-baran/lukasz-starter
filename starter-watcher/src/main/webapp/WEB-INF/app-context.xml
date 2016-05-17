@@ -5,6 +5,7 @@
        xmlns="http://www.springframework.org/schema/beans"
        xmlns:jee="http://www.springframework.org/schema/jee"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
@@ -15,11 +16,34 @@
 
     <bean id="cameraStrych" class="com.lukaszbaran.starter.watcher.CameraDescription">
         <constructor-arg index="0" value="strych"/>
-        <constructor-arg index="1" value="/home/barranek/kamera/192.168.1.11_001212a67271"/>
+        <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.11_001212a67271"/>
+    </bean>
+    <bean id="cameraDrzwi" class="com.lukaszbaran.starter.watcher.CameraDescription">
+        <constructor-arg index="0" value="drzwi"/>
+        <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.12_00121292c6c4"/>
+    </bean>
+    <bean id="cameraAltana" class="com.lukaszbaran.starter.watcher.CameraDescription">
+        <constructor-arg index="0" value="altana"/>
+        <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.13_00121315d7f4"/>
+    </bean>
+    <bean id="cameraPodworko" class="com.lukaszbaran.starter.watcher.CameraDescription">
+        <constructor-arg index="0" value="podworko"/>
+        <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.14_00121315cbf5"/>
     </bean>
 
+    <util:set id="cameraDescriptions" value-type="com.lukaszbaran.starter.watcher.CameraDescription">
+        <ref bean="cameraStrych" />
+        <ref bean="cameraDrzwi" />
+        <ref bean="cameraAltana" />
+        <ref bean="cameraPodworko" />
+    </util:set>
+
     <bean id="watcher" class="com.lukaszbaran.starter.watcher.DirectoryWatcher">
-        <property name="dir2watch" value="${starter.watcher.dir2watch}" />
+        <property name="dir2watch" ref="cameraDescriptions" />
+    </bean>
+
+    <bean id="listener" class="com.lukaszbaran.starter.watcher.DirectoryWatcherListenerImpl">
+        <property name="cameraDescriptions" ref="cameraDescriptions" />
     </bean>
 
     <bean id="pollThread" class="java.lang.Thread" init-method="start" destroy-method="interrupt">

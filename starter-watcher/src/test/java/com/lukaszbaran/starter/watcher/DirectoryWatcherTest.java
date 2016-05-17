@@ -12,7 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DirectoryWatcherTest {
     private static final Logger LOGGER = Logger.getLogger(DirectoryWatcherTest.class);
@@ -37,21 +40,22 @@ public class DirectoryWatcherTest {
 
         Files.createDirectory(Paths.get(TEST_DIR));
         LOGGER.debug(strCurrDir);
-        watcher.setDir2watch(strCurrDir);
+
+        CameraDescription description = mock(CameraDescription.class);
+        when(description.getDirectory()).thenReturn(strCurrDir);
+
+        watcher.setDir2watch(singletonList(description));
     }
 
     @Test
     public void shouldReactToDirChanges() throws Exception {
         watcher.afterPropertiesSet();
         Thread thread = new Thread(watcher);
-        watcher.setListener(new DirectoryWatcherListener() {
-            @Override
-            public void onEvent(Path path) {
-                LOGGER.info("path " + path);
-                watcher.setRunning(false);
-                assertTrue(path.endsWith(DIR_TO_CREATE));
-            }
-        });
+        watcher.setListener((Path path) -> {
+                    LOGGER.info("path " + path);
+                    watcher.setRunning(false);
+                    assertTrue(path.endsWith(DIR_TO_CREATE));
+                });
         thread.start();
         Thread.sleep(1000);
         assertTrue(Paths.get(TEST_DIR + File.separatorChar + DIR_TO_CREATE).toFile().mkdir());
