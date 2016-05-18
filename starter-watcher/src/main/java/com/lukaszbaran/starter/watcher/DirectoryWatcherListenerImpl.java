@@ -30,6 +30,8 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
             // a new folder was created - add monitoring for that folder
             String subdirWithPics = Paths.get(path.toAbsolutePath().toString(), "01", "pic").toAbsolutePath().toString();
             LOGGER.info("subdirectory with pictures: " + subdirWithPics);
+            CameraDescription description = new CameraDescription("picture_folder", subdirWithPics);
+            directoryWatcher.registerDirectoryIfPossible(description);
         }
     }
 

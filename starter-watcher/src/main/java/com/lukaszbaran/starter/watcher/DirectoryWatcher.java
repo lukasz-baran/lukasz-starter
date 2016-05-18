@@ -41,7 +41,9 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
             LOGGER.error("cannot start watching (null)");
             return;
         }
-        dir2watch.forEach(desc -> registerDirectory(desc));
+        for (CameraDescription desc : dir2watch) {
+            registerDirectory(desc);
+        }
     }
 
     private void registerDirectory(CameraDescription desc) {
