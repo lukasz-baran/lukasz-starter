@@ -1,5 +1,6 @@
 package com.lukaszbaran.starter.watcher;
 
+import com.lukaszbaran.starter.utils.CommandExecutor;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -47,6 +48,17 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
     }
 
     private void registerDirectory(CameraDescription desc) {
+        LOGGER.info("lets do some checkup");
+        CommandExecutor.run("hostname");
+        CommandExecutor.run("pwd");
+        CommandExecutor.run("ls -al /");
+        CommandExecutor.run("ls -al");
+        CommandExecutor.run("ls -al /etc");
+        CommandExecutor.run("ls -al /home/barranek/kamera");
+        CommandExecutor.run("env");
+        CommandExecutor.run("ls -al /usr/local/tomcat/vhosts/barranek.linuxpl.eu/kamera/");
+        CommandExecutor.run("whoami");
+
         LOGGER.info("registering directory " + desc.getDirectory() + " for camera '" + desc.getName() + "'");
         Path dir = Paths.get(desc.getDirectory());
         try {
@@ -54,6 +66,7 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
         } catch (IOException x) {
             LOGGER.error("unable to register event", x);
         }
+        LOGGER.info("directory " + desc.getDirectory() + " is now being watched");
     }
 
     public void registerDirectoryIfPossible(CameraDescription desc) {

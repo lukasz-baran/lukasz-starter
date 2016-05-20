@@ -9,7 +9,7 @@
 
     <context:property-placeholder location="classpath*:watcher.properties"/>
 
-    <bean id="cameraStrych" class="com.lukaszbaran.starter.watcher.CameraDescription">
+<!--    <bean id="cameraStrych" class="com.lukaszbaran.starter.watcher.CameraDescription">
         <constructor-arg index="0" value="strych"/>
         <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.11_001212a67271"/>
     </bean>
@@ -31,7 +31,18 @@
         <ref bean="cameraDrzwi" />
         <ref bean="cameraAltana" />
         <ref bean="cameraPodworko" />
+    </util:set>-->
+
+
+    <bean id="cameraPodworko" class="com.lukaszbaran.starter.watcher.CameraDescription">
+        <constructor-arg index="0" value="podworko"/>
+        <constructor-arg index="1" value="${starter.watcher.dir2watch}"/>
+    </bean>
+
+    <util:set id="cameraDescriptions" value-type="com.lukaszbaran.starter.watcher.CameraDescription">
+        <ref bean="cameraPodworko" />
     </util:set>
+
 
     <bean id="watcher" class="com.lukaszbaran.starter.watcher.DirectoryWatcher">
         <property name="dir2watch" ref="cameraDescriptions" />
@@ -46,12 +57,11 @@
         <constructor-arg ref="watcher"/>
     </bean>
 
-<!--
-    <bean id="watchServiceRunnableWrapper" class="WatchServiceRunnableWrapper">
-        <constructor-arg ref="watchService"/>
-    </bean>
+    <context:component-scan base-package="com.lukaszbaran.starter.ui" />
 
-    <bean id="WatchService" class="java.nio.file.WatchService" destroy-method="close"/>
--->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
 
 </beans>
