@@ -49,9 +49,25 @@
         <property name="listener" ref="listener" />
     </bean>
 
+    <bean id="emailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="mail.smtp.host">${mail.smtp.host}</prop>
+                <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+                <prop key="mail.smtp.port">${mail.smtp.port}</prop>
+                <prop key="mail.smtp.starttls.enable">${mail.smtp.starttls.enable}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="emailProcessor" class="com.lukaszbaran.starter.processing.EmailPictureProcessor">
+        <property name="props" ref="emailProperties" />
+    </bean>
+
     <bean id="listener" class="com.lukaszbaran.starter.watcher.DirectoryWatcherListenerImpl">
         <property name="cameraDescriptions" ref="cameraDescriptions" />
         <property name="directoryWatcher" ref="watcher" />
+        <property name="pictureProcessor" ref="emailProcessor" />
     </bean>
 
     <bean id="pollThread" class="java.lang.Thread" init-method="start" destroy-method="interrupt">

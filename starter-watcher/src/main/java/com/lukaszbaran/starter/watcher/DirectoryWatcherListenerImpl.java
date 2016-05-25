@@ -1,6 +1,7 @@
 package com.lukaszbaran.starter.watcher;
 
 import com.lukaszbaran.starter.processing.PictureProcessor;
+import com.lukaszbaran.starter.processing.ProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -45,7 +46,14 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
         }
 
         if (pictureProcessor != null) {
-            pictureProcessor.handle(file);
+            try {
+                pictureProcessor.handle(file);
+                // TODO if successful should add information to MySQL log
+
+            } catch (ProcessingException e) {
+                // TODO think about adding the message to Non-Processed-Queue
+                LOGGER.error("EMAIL not sent!");
+            }
         }
     }
 
