@@ -1,6 +1,7 @@
 package com.lukaszbaran.starter.watcher;
 
 import com.lukaszbaran.starter.utils.CommandExecutor;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -49,15 +50,17 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
 
     private void registerDirectory(CameraDescription desc) {
         LOGGER.info("lets do some checkup");
-        CommandExecutor.run("hostname");
-        CommandExecutor.run("pwd");
-        CommandExecutor.run("ls -al /");
-        CommandExecutor.run("ls -al");
-        CommandExecutor.run("ls -al /etc");
-        CommandExecutor.run("ls -al /home/barranek/kamera");
-        CommandExecutor.run("env");
-        CommandExecutor.run("ls -al /usr/local/tomcat/vhosts/barranek.linuxpl.eu/kamera/");
-        CommandExecutor.run("whoami");
+        if (SystemUtils.IS_OS_UNIX) {
+            CommandExecutor.run("hostname");
+            CommandExecutor.run("pwd");
+            CommandExecutor.run("ls -al /");
+            CommandExecutor.run("ls -al");
+            CommandExecutor.run("ls -al /etc");
+            CommandExecutor.run("ls -al /home/barranek/kamera");
+            CommandExecutor.run("env");
+            CommandExecutor.run("ls -al /usr/local/tomcat/vhosts/barranek.linuxpl.eu/kamera/");
+            CommandExecutor.run("whoami");
+        }
 
         LOGGER.info("registering directory " + desc.getDirectory() + " for camera '" + desc.getName() + "'");
         Path dir = Paths.get(desc.getDirectory());
@@ -100,10 +103,11 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
             }
             for (WatchEvent<?> watchEvent : watchKey.pollEvents()) {
                 Path path = (Path) watchEvent.context();
-                LOGGER.debug("listener " + watchEvent.kind() + " " + path);
-
+                Path rootPath = (Path) watchKey.watchable();
+                Path pathToRegister = Paths.get(rootPath.toString(), path.toString());
+                LOGGER.debug("listener " + watchEvent.kind() + " " + pathToRegister);
                 if (listener != null) {
-                    listener.onEvent(path);
+                    listener.onEvent(pathToRegister);
                 }
             }
             watchKey.reset();
