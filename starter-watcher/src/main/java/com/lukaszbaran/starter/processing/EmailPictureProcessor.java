@@ -49,7 +49,7 @@ public class EmailPictureProcessor implements PictureProcessor, InitializingBean
                 new javax.mail.Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication("kamera@barranek.linuxpl.eu","k0szmar");
+                        return new PasswordAuthentication("kamera@barranek.linuxpl.eu","xxxx");
                     }
                 });
         try {
