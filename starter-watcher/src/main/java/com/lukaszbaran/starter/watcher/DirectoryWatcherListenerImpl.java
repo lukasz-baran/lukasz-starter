@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.Set;
 
 public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
@@ -47,7 +48,7 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
 
         if (pictureProcessor != null) {
             try {
-                pictureProcessor.handle(file);
+                pictureProcessor.handle(file, constructSubject(path.toString()), constructBody());
                 // TODO if successful should add information to MySQL log
 
             } catch (ProcessingException e) {
@@ -55,6 +56,21 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
                 LOGGER.error("EMAIL not sent!");
             }
         }
+    }
+
+    private String constructSubject(String path) {
+        for (CameraDescription cd : cameraDescriptions) {
+            if (path.contains(cd.getDirectory())) {
+                return cd.getName();
+            }
+        }
+        return "unknown camera";
+    }
+
+
+    private String constructBody() {
+        // TODO improve this method
+        return "Picture taken at " + new Date();
     }
 
 

@@ -20,13 +20,11 @@ import java.util.Properties;
 
 public class EmailPictureProcessor implements PictureProcessor, InitializingBean {
     private static final Logger LOGGER = Logger.getLogger(EmailPictureProcessor.class);
-    private static final String MSG_SUBJECT = "Testing Subject";
-    private static final String MSG_TEXT = "Test Mail";
 
     private Properties props;
 
     @Override
-    public void handle(File file) throws ProcessingException {
+    public void handle(File file, String subject, String body) throws ProcessingException {
 //        Properties props = new Properties();
 //        props.put("mail.smtp.host", "mail.barranek.linuxpl.eu");
 //        props.put("mail.smtp.socketFactory.port", "587");
@@ -45,16 +43,21 @@ public class EmailPictureProcessor implements PictureProcessor, InitializingBean
             return;
         }
 
+        final String loginEmail = props.getProperty("mail.login");
+        final String passwordEmail = props.getProperty("mail.password");
+        final String emailSender = props.getProperty("mail.sender");
+        final String emailRecipients = props.getProperty("mail.recipients");
+
         Session session = Session.getDefaultInstance(props,
                 new javax.mail.Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication("kamera@barranek.linuxpl.eu","xxxx");
+                        return new PasswordAuthentication(loginEmail, passwordEmail);
                     }
                 });
         try {
-            MimeMessage mimeMessage = buildMimeMessage(file, session, new InternetAddress("kamera@barranek.linuxpl.eu"),
-                 InternetAddress.parse("lukasz.baran@gmail.com")
+            MimeMessage mimeMessage = buildMimeMessage(file, subject, body, session, new InternetAddress(emailSender),
+                 InternetAddress.parse(emailRecipients)
             );
             Transport.send(mimeMessage);
             LOGGER.debug("Done - email sent");
@@ -64,18 +67,18 @@ public class EmailPictureProcessor implements PictureProcessor, InitializingBean
     }
 
 
-    private MimeMessage buildMimeMessage(File file, Session session, InternetAddress from, InternetAddress[] to) throws MessagingException, IOException {
+    private MimeMessage buildMimeMessage(File file, String subject, String body, Session session, InternetAddress from, InternetAddress[] to) throws MessagingException, IOException {
 
         // create a message
         MimeMessage msg = new MimeMessage(session);
         msg.setFrom(from);
         //InternetAddress[] address = {new InternetAddress(to)};
         msg.setRecipients(Message.RecipientType.TO, to);
-        msg.setSubject(MSG_SUBJECT);
+        msg.setSubject(subject);
 
         // create and fill the first message part
         MimeBodyPart mbp1 = new MimeBodyPart();
-        mbp1.setText(MSG_TEXT);
+        mbp1.setText(body);
 
         // create the second message part
         MimeBodyPart mbp2 = new MimeBodyPart();

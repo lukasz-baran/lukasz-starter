@@ -4,5 +4,5 @@ import java.io.File;
 
 public interface PictureProcessor {
 
-    void handle(File file) throws ProcessingException;
+    void handle(File file, String subject, String body) throws ProcessingException;
 }

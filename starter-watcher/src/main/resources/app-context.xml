@@ -56,6 +56,10 @@
                 <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
                 <prop key="mail.smtp.port">${mail.smtp.port}</prop>
                 <prop key="mail.smtp.starttls.enable">${mail.smtp.starttls.enable}</prop>
+                <prop key="mail.login">${mail.login}</prop>
+                <prop key="mail.password">${mail.password}</prop>
+                <prop key="mail.sender">${mail.sender}</prop>
+                <prop key="mail.recipients">${mail.recipients}</prop>
             </props>
         </property>
     </bean>

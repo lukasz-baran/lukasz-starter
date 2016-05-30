@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,6 +32,7 @@ public class DirectoryWatcherTest {
     private static final Logger LOGGER = Logger.getLogger(DirectoryWatcherTest.class);
     private static final String TEST_DIR = "testFolder";
     private static final String DIR_TO_CREATE = "2015-12-12";
+    private static final String FAKE_CAMERA_NAME = "kamera testowa";
 
     private final DirectoryWatcher watcher = new DirectoryWatcher();
 
@@ -91,6 +93,12 @@ public class DirectoryWatcherTest {
         Thread thread = new Thread(watcher);
         DirectoryWatcherListenerImpl listener = new DirectoryWatcherListenerImpl();
         listener.setDirectoryWatcher(watcher);
+
+        Set<CameraDescription> descriptions = new HashSet<>();
+        CameraDescription description = new CameraDescription(FAKE_CAMERA_NAME, Paths.get(TEST_DIR).toAbsolutePath().toString());
+        descriptions.add(description);
+        listener.setCameraDescriptions(descriptions);
+
         watcher.setListener(listener);
 
         PictureProcessor processorMock = mock(PictureProcessor.class);
@@ -114,7 +122,7 @@ public class DirectoryWatcherTest {
         Thread.sleep(1000);
         watcher.setRunning(false);
         thread.join();
-        verify(processorMock).handle(eq(toCreate.toFile()));
+        verify(processorMock).handle(eq(toCreate.toFile()), eq(FAKE_CAMERA_NAME), any(String.class));
     }
 
 }
