@@ -13,6 +13,8 @@ import java.util.Set;
 
 public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
     private static final Logger LOGGER = Logger.getLogger(DirectoryWatcherListenerImpl.class);
+    private static final long SLEEP_INTERVAL = 100L;
+    private static final int LOOP_COUNT = 100;
 
     private Set<CameraDescription> cameraDescriptions;
     private DirectoryWatcher directoryWatcher;
@@ -82,14 +84,16 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
             int counter = 0;
 
             while (!subdirWithPics.toFile().exists()) {
-                Thread.sleep(100);
+                Thread.sleep(SLEEP_INTERVAL);
                 counter++;
                 LOGGER.debug("waiting for " + subdirWithPics + "...");
 
-                if (counter == 100) {
-                    // safety condition - if the sub directories were not created after 10 seconds, we're giving up
+                if (counter == LOOP_COUNT) {
+                    long seconds = SLEEP_INTERVAL * LOOP_COUNT / 1000L;
+
+                    // safety condition - if the sub directories were not created after some time, we're giving up
                     LOGGER.warn("seems that " + subdirWithPics +
-                            " was not created after 10 seconds - skipping");
+                            " was not created after " + seconds + " seconds - skipping");
                     return;
                 }
             }

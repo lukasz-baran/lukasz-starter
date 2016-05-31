@@ -1,19 +1,38 @@
 package com.lukaszbaran.starter.ui;
 
 
+import com.lukaszbaran.starter.watcher.DirectoryWatcher;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/hello")
 public class HelloController {
+    private static final Logger LOGGER = Logger.getLogger(HelloController.class);
 
-    @RequestMapping(method = RequestMethod.GET)
-    public String printHello(ModelMap model) {
-        model.addAttribute("message", "Hello Spring MVC Framework!");
-        return "hello";
+    private DirectoryWatcher directoryWatcher;
+
+    @RequestMapping("/start")
+    public ModelAndView start(ModelMap model) {
+        LOGGER.debug("starting DirectoryWatcher");
+        model.addAttribute("enabled", false);
+        directoryWatcher.setRunning(true);
+        return new ModelAndView("hello", "enabled", true);
+    }
+
+    @RequestMapping("/stop")
+    public ModelAndView stop(ModelMap model) {
+        LOGGER.debug("stoping DirectoryWatcher");
+        model.addAttribute("enabled", false);
+        directoryWatcher.setRunning(false);
+        return new ModelAndView("hello", "enabled", false);
+    }
+
+    public void setDirectoryWatcher(DirectoryWatcher directoryWatcher) {
+        this.directoryWatcher = directoryWatcher;
     }
 
 }

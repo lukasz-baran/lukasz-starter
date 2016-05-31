@@ -49,8 +49,8 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
     }
 
     private void registerDirectory(CameraDescription desc) {
-        LOGGER.info("lets do some checkup");
         if (SystemUtils.IS_OS_UNIX) {
+            LOGGER.info("lets do some checkup");
             CommandExecutor.run("hostname");
             CommandExecutor.run("pwd");
             CommandExecutor.run("ls -al /");
@@ -91,13 +91,6 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
             }
 
             WatchKey  watchKey = watcher.poll();
-// another way
-//            try {
-//                watchKey = watcher.take();
-//            } catch (InterruptedException ex) {
-//                System.out.println("InterruptedException: " + ex);
-//                break;
-//            }
             if (watchKey == null) {
                 continue;
             }
@@ -106,6 +99,13 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
                 Path rootPath = (Path) watchKey.watchable();
                 Path pathToRegister = Paths.get(rootPath.toString(), path.toString());
                 LOGGER.debug("listener " + watchEvent.kind() + " " + pathToRegister);
+
+                // for files we react only on ENTRY_MODIFY
+                if ("ENTRY_CREATE".equalsIgnoreCase(watchEvent.kind().toString()) &&
+                        pathToRegister.toFile().isDirectory()) {
+                    continue;
+                }
+
                 if (listener != null) {
                     listener.onEvent(pathToRegister);
                 }

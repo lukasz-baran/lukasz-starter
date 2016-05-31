@@ -22,8 +22,8 @@
 
 
   <root>
-    <priority value="DEBUG" />
-    <appender-ref ref="FILE"/>
+    <priority value="INFO" />
+<!--    <appender-ref ref="FILE"/>-->
     <appender-ref ref="CONSOLE"/>
   </root>
    
