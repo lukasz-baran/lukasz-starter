@@ -19,7 +19,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-expression</artifactId>
         </dependency>
@@ -72,78 +72,59 @@
     </dependencies>
     <build>
         <finalName>starter-watcher</finalName>
-<!--
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.6</version>
+                <version>2.0.2</version>
                 <configuration>
                     <webResources>
                         <resource>
-                            <file></file>
-                            <directory>resource2</directory>
+                            <directory>${basedir}/src/main/webapp</directory>
+                            <includes>
+                                <include>WEB-INF/*.xml</include>
+                                <include>*.jsp</include>
+                            </includes>
+                            <filtering>true</filtering>
+                        </resource>
+                        <resource>
+                            <directory>${basedir}/src/main/resources</directory>
+                            <includes>
+                                <include>*.xml</include>
+                            </includes>
+                            <filtering>true</filtering>
+                            <targetPath>WEB-INF/classes</targetPath>
+                        </resource>
+                        <resource>
+                            <directory>${basedir}/src/main/config/${env}</directory>
+                            <includes>
+                                <include>*</include>
+                            </includes>
+                            <filtering>true</filtering>
+                            <targetPath>WEB-INF/classes</targetPath>
                         </resource>
                     </webResources>
                 </configuration>
             </plugin>
-        </plugins>-->
+            <plugin>
 <!--
-
-        <resources>
-            <resource>
-                <directory>resources</directory>
-            </resource>
-        </resources>
-
-        <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.19.1</version>
-            <configuration>
-                <additionalClasspathElements>
-                    <additionalClasspathElement>app-context.xml</additionalClasspathElement>
-                </additionalClasspathElements>
-            </configuration>
-        </plugin>
-        </plugins>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat-maven-plugin</artifactId>
+                <version>1.1</version>
 -->
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <version>2.0.2</version>
-            <configuration>
-                <webResources>
-                    <resource>
-                        <directory>${basedir}/src/main/webapp</directory>
-                        <includes>
-                            <include>WEB-INF/*.xml</include>
-                            <include>*.jsp</include>
-                        </includes>
-                        <filtering>true</filtering>
-                    </resource>
-                    <resource>
-                        <directory>${basedir}/src/main/resources</directory>
-                        <includes>
-                            <include>*.xml</include>
-                        </includes>
-                        <filtering>true</filtering>
-                        <targetPath>WEB-INF/classes</targetPath>
-                    </resource>
-                    <resource>
-                        <directory>${basedir}/src/main/config/${env}</directory>
-                        <includes>
-                            <include>*</include>
-                        </includes>
-                        <filtering>true</filtering>
-                        <targetPath>WEB-INF/classes</targetPath>
-                    </resource>
-                </webResources>
-            </configuration>
-        </plugin>
-    </plugins>
+
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>http://localhost:8080/manager/text</url>
+                    <server>mytomcat</server>
+                    <path>/starter-watcher</path>
+                    <username>tomcat</username>
+                    <password>tomcat</password>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
@@ -186,7 +167,7 @@
 
                 </plugins>
             </build>
-       </profile>
+        </profile>
         <profile>
             <id>server</id>
             <properties>

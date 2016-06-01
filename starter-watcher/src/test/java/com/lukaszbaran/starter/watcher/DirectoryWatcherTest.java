@@ -119,6 +119,7 @@ public class DirectoryWatcherTest {
         URL fileJPG = Resources.getResource("bin/1518500082.jpg");
         Long size = Files.copy(fileJPG.openStream(), toCreate);
         assertThat(size, greaterThan(0L));
+
         Thread.sleep(1000);
         watcher.setRunning(false);
         thread.join();
