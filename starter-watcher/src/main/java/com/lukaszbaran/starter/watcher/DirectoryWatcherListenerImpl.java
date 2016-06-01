@@ -106,7 +106,6 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
         LOGGER.info("subdirectory with pictures: " + subdirWithPics);
         CameraDescription description = new CameraDescription("picture_folder", subdirWithPics.toString());
         directoryWatcher.registerDirectoryIfPossible(description);
-
     }
 
 

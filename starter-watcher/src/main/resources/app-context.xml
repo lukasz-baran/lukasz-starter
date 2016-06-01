@@ -54,6 +54,7 @@
     <bean id="watcher" class="com.lukaszbaran.starter.watcher.DirectoryWatcher">
         <property name="dir2watch" ref="cameraDescriptions" />
         <property name="listener" ref="listener" />
+        <property name="taskExecutor" ref="taskExecutor" />
     </bean>
 
     <bean id="emailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
@@ -81,8 +82,11 @@
         <property name="pictureProcessor" ref="emailProcessor" />
     </bean>
 
-    <bean id="pollThread" class="java.lang.Thread" init-method="start" destroy-method="interrupt">
-        <constructor-arg ref="watcher"/>
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1" />
+        <property name="maxPoolSize" value="2" />
+        <property name="queueCapacity" value="25" />
+        <property name="waitForTasksToCompleteOnShutdown" value="true" />
     </bean>
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">

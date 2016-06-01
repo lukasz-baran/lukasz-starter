@@ -3,7 +3,6 @@ package com.lukaszbaran.starter.ui;
 
 import com.lukaszbaran.starter.watcher.DirectoryWatcher;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +19,11 @@ public class HelloController {
         LOGGER.debug("starting DirectoryWatcher");
         model.addAttribute("enabled", false);
         directoryWatcher.setRunning(true);
+        try {
+            directoryWatcher.afterPropertiesSet();
+        } catch (Exception e) {
+            LOGGER.error("Unable to start DirectoryWatcher!", e);
+        }
         return new ModelAndView("hello", "enabled", true);
     }
 

@@ -3,7 +3,9 @@ package com.lukaszbaran.starter.watcher;
 import com.lukaszbaran.starter.utils.CommandExecutor;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -15,15 +17,14 @@ import java.nio.file.WatchService;
 import java.util.Set;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
-public class DirectoryWatcher implements InitializingBean, Runnable {
+public class DirectoryWatcher implements InitializingBean, Runnable, DisposableBean {
     private static final Logger LOGGER = Logger.getLogger(DirectoryWatcher.class);
     private final WatchService watcher;
     private Set<CameraDescription> dir2watch;
 
     private DirectoryWatcherListener listener;
+    private ThreadPoolTaskExecutor taskExecutor;
 
     private volatile boolean isRunning;
 
@@ -46,6 +47,8 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
         for (CameraDescription desc : dir2watch) {
             registerDirectory(desc);
         }
+
+        taskExecutor.submit(this);
     }
 
     private void registerDirectory(CameraDescription desc) {
@@ -65,7 +68,7 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
         LOGGER.info("registering directory " + desc.getDirectory() + " for camera '" + desc.getName() + "'");
         Path dir = Paths.get(desc.getDirectory());
         try {
-            WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+            WatchKey key = dir.register(watcher, ENTRY_CREATE);
         } catch (IOException x) {
             LOGGER.error("unable to register event", x);
         }
@@ -101,10 +104,16 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
                 LOGGER.debug("listener " + watchEvent.kind() + " " + pathToRegister);
 
                 // for files we react only on ENTRY_MODIFY
-                if ("ENTRY_CREATE".equalsIgnoreCase(watchEvent.kind().toString()) &&
-                        pathToRegister.toFile().isDirectory()) {
-                    continue;
-                }
+//                if ("ENTRY_CREATE".equalsIgnoreCase(watchEvent.kind().toString()) &&
+//                        !pathToRegister.toFile().isDirectory()) {
+//                    continue;
+//                }
+
+                // for directories we react only on ENTRY_CREATE
+//                if ("ENTRY_MODIFY".equalsIgnoreCase(watchEvent.kind().toString()) &&
+//                        pathToRegister.toFile().isDirectory()) {
+//                    continue;
+//                }
 
                 if (listener != null) {
                     listener.onEvent(pathToRegister);
@@ -122,7 +131,17 @@ public class DirectoryWatcher implements InitializingBean, Runnable {
         this.listener = listener;
     }
 
+    public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
+        this.taskExecutor = taskExecutor;
+    }
+
     public void setRunning(boolean running) {
         isRunning = running;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        LOGGER.warn("Stopping DirectoryWatcher");
+        setRunning(false);
     }
 }
