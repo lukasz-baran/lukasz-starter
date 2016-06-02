@@ -49,6 +49,8 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
         }
 
         if (pictureProcessor != null) {
+            LOGGER.debug("handlePicture start");
+
             try {
                 pictureProcessor.handle(file, constructSubject(path.toString()), constructBody());
                 // TODO if successful should add information to MySQL log

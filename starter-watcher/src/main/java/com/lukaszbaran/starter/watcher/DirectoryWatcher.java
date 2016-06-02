@@ -1,7 +1,5 @@
 package com.lukaszbaran.starter.watcher;
 
-import com.lukaszbaran.starter.utils.CommandExecutor;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -20,7 +18,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
 public class DirectoryWatcher implements InitializingBean, Runnable, DisposableBean {
     private static final Logger LOGGER = Logger.getLogger(DirectoryWatcher.class);
-    private final WatchService watcher;
+    private WatchService watcher;
     private Set<CameraDescription> dir2watch;
 
     private DirectoryWatcherListener listener;
@@ -28,43 +26,20 @@ public class DirectoryWatcher implements InitializingBean, Runnable, DisposableB
 
     private volatile boolean isRunning;
 
-    public DirectoryWatcher() {
-        WatchService _watcher = null;
+    public void afterPropertiesSet() throws Exception {
         try {
-            _watcher = FileSystems.getDefault().newWatchService();
+            watcher = FileSystems.getDefault().newWatchService();
         } catch (IOException e) {
             LOGGER.error("unable to create WatchService", e);
-        }
-        watcher = _watcher;
-    }
-
-
-    public void afterPropertiesSet() throws Exception {
-        if (watcher == null) {
-            LOGGER.error("cannot start watching (null)");
             return;
         }
         for (CameraDescription desc : dir2watch) {
             registerDirectory(desc);
         }
-
-        taskExecutor.submit(this);
+        taskExecutor.execute(this);
     }
 
     private void registerDirectory(CameraDescription desc) {
-        if (SystemUtils.IS_OS_UNIX) {
-            LOGGER.info("lets do some checkup");
-            CommandExecutor.run("hostname");
-            CommandExecutor.run("pwd");
-            CommandExecutor.run("ls -al /");
-            CommandExecutor.run("ls -al");
-            CommandExecutor.run("ls -al /etc");
-            CommandExecutor.run("ls -al /home/barranek/kamera");
-            CommandExecutor.run("env");
-            CommandExecutor.run("ls -al /usr/local/tomcat/vhosts/barranek.linuxpl.eu/kamera/");
-            CommandExecutor.run("whoami");
-        }
-
         LOGGER.info("registering directory " + desc.getDirectory() + " for camera '" + desc.getName() + "'");
         Path dir = Paths.get(desc.getDirectory());
         try {
@@ -75,7 +50,7 @@ public class DirectoryWatcher implements InitializingBean, Runnable, DisposableB
         LOGGER.info("directory " + desc.getDirectory() + " is now being watched");
     }
 
-    public void registerDirectoryIfPossible(CameraDescription desc) {
+    void registerDirectoryIfPossible(CameraDescription desc) {
         if (dir2watch.contains(desc)) {
             LOGGER.warn("directory " + desc.getDirectory() + " already registered");
             return;
@@ -135,13 +110,10 @@ public class DirectoryWatcher implements InitializingBean, Runnable, DisposableB
         this.taskExecutor = taskExecutor;
     }
 
-    public void setRunning(boolean running) {
-        isRunning = running;
-    }
-
     @Override
     public void destroy() throws Exception {
         LOGGER.warn("Stopping DirectoryWatcher");
-        setRunning(false);
+        isRunning = false;
+        watcher.close();
     }
 }

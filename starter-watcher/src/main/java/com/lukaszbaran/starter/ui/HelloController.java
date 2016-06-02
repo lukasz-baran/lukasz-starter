@@ -18,7 +18,6 @@ public class HelloController {
     public ModelAndView start(ModelMap model) {
         LOGGER.debug("starting DirectoryWatcher");
         model.addAttribute("enabled", false);
-        directoryWatcher.setRunning(true);
         try {
             directoryWatcher.afterPropertiesSet();
         } catch (Exception e) {
@@ -28,10 +27,11 @@ public class HelloController {
     }
 
     @RequestMapping("/stop")
-    public ModelAndView stop(ModelMap model) {
+    public ModelAndView stop(ModelMap model) throws Exception {
         LOGGER.debug("stoping DirectoryWatcher");
         model.addAttribute("enabled", false);
-        directoryWatcher.setRunning(false);
+        directoryWatcher.destroy();
+
         return new ModelAndView("hello", "enabled", false);
     }
 
