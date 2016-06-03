@@ -3,7 +3,6 @@ package com.lukaszbaran.starter.watcher;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -13,8 +12,12 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 public class DirectoryWatcher implements InitializingBean, Runnable, DisposableBean {
     private static final Logger LOGGER = Logger.getLogger(DirectoryWatcher.class);
@@ -22,9 +25,13 @@ public class DirectoryWatcher implements InitializingBean, Runnable, DisposableB
     private Set<CameraDescription> dir2watch;
 
     private DirectoryWatcherListener listener;
-    private ThreadPoolTaskExecutor taskExecutor;
+    private ExecutorService executorService;
 
     private volatile boolean isRunning;
+
+    public DirectoryWatcher() {
+        this.executorService = Executors.newSingleThreadExecutor();
+    }
 
     public void afterPropertiesSet() throws Exception {
         try {
@@ -36,14 +43,14 @@ public class DirectoryWatcher implements InitializingBean, Runnable, DisposableB
         for (CameraDescription desc : dir2watch) {
             registerDirectory(desc);
         }
-        taskExecutor.execute(this);
+        executorService.execute(this);
     }
 
     private void registerDirectory(CameraDescription desc) {
         LOGGER.info("registering directory " + desc.getDirectory() + " for camera '" + desc.getName() + "'");
         Path dir = Paths.get(desc.getDirectory());
         try {
-            WatchKey key = dir.register(watcher, ENTRY_CREATE);
+            WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
         } catch (IOException x) {
             LOGGER.error("unable to register event", x);
         }
@@ -106,14 +113,11 @@ public class DirectoryWatcher implements InitializingBean, Runnable, DisposableB
         this.listener = listener;
     }
 
-    public void setTaskExecutor(ThreadPoolTaskExecutor taskExecutor) {
-        this.taskExecutor = taskExecutor;
-    }
-
     @Override
     public void destroy() throws Exception {
         LOGGER.warn("Stopping DirectoryWatcher");
         isRunning = false;
+        executorService.awaitTermination(1000, TimeUnit.MILLISECONDS);
         watcher.close();
     }
 }

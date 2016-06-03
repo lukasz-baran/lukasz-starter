@@ -1,13 +1,13 @@
 package com.lukaszbaran.starter.watcher;
 
 import com.google.common.io.Resources;
+import com.lukaszbaran.starter.log.RepositoryLog;
 import com.lukaszbaran.starter.processing.PictureProcessor;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
@@ -18,8 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
@@ -28,6 +26,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,21 +36,9 @@ public class DirectoryWatcherTest {
     private static final String DIR_TO_CREATE = "2015-12-12";
     private static final String FAKE_CAMERA_NAME = "kamera testowa";
 
-    private final ThreadPoolTaskExecutor taskExecutor = getAsyncExecutor();
-    private final DirectoryWatcher watcher = new DirectoryWatcher();
+    private DirectoryWatcher watcher;
 
-    private static ThreadPoolTaskExecutor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(1);
-        executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(10);
-        //executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.initialize();
-        return executor;
-    }
-
-    @BeforeClass
-    public static void onlyOnce() {
+    public static void cleanDir() {
         final File testDir = Paths.get(TEST_DIR).toFile();
         if (testDir.exists()) {
             LOGGER.warn("path " + TEST_DIR + " exists. deleting");
@@ -61,6 +48,8 @@ public class DirectoryWatcherTest {
 
     @Before
     public void setUp() throws IOException {
+        watcher = new DirectoryWatcher();
+
         Path created = Files.createDirectory(Paths.get(TEST_DIR));
         LOGGER.debug(created.toAbsolutePath());
 
@@ -74,14 +63,13 @@ public class DirectoryWatcherTest {
 
     @After
     public void cleanUp() {
-        onlyOnce();
+        cleanDir();
     }
 
     @Test
+    @Ignore("not needed anymore")
     public void shouldReactToDirChanges() throws Exception {
-        watcher.setTaskExecutor(taskExecutor);
         watcher.afterPropertiesSet();
-        Thread thread = new Thread(watcher);
         watcher.setListener(new DirectoryWatcherListener() {
             @Override
             public void onEvent(Path path) {
@@ -95,7 +83,6 @@ public class DirectoryWatcherTest {
                 }
             }
         });
-        thread.start();
         Thread.sleep(1000);
         File directory = Paths.get(TEST_DIR + File.separatorChar + DIR_TO_CREATE).toFile();
         assertTrue(directory.mkdir());
@@ -103,9 +90,6 @@ public class DirectoryWatcherTest {
 
     @Test
     public void shouldReactToDirChangeWithRealListener() throws Exception {
-        watcher.setTaskExecutor(taskExecutor);
-
-        //Thread thread = new Thread(watcher);
         DirectoryWatcherListenerImpl listener = new DirectoryWatcherListenerImpl();
         listener.setDirectoryWatcher(watcher);
 
@@ -114,14 +98,16 @@ public class DirectoryWatcherTest {
         descriptions.add(description);
         listener.setCameraDescriptions(descriptions);
 
+        RepositoryLog repoLog = mock(RepositoryLog.class);
+        listener.setRepositoryLog(repoLog);
+
         watcher.setListener(listener);
 
         PictureProcessor processorMock = mock(PictureProcessor.class);
         listener.setPictureProcessor(processorMock);
 
-        //thread.start();
         watcher.afterPropertiesSet();
-        Thread.sleep(1000);
+
         File dirWithDate = Paths.get(TEST_DIR + File.separatorChar + DIR_TO_CREATE).toFile();
         assertTrue(dirWithDate.mkdir());
 
@@ -136,25 +122,12 @@ public class DirectoryWatcherTest {
         Long size = Files.copy(fileJPG.openStream(), toCreate);
         assertThat(size, greaterThan(0L));
 
-        //Thread.sleep(2000);
+        File expectedFile = toCreate.toFile();
 
-        //taskExecutor.setWaitForTasksToCompleteOnShutdown(true);
-
+        verify(processorMock, timeout(10000)).handle(eq(expectedFile), eq(FAKE_CAMERA_NAME), any(String.class));
+        verify(repoLog).isAlreadyStored(eq(expectedFile));
+        verify(repoLog).remember(eq(expectedFile));
         watcher.destroy();
-        //taskExecutor.shutdown();
-        try {
-            taskExecutor.getThreadPoolExecutor().awaitTermination(30, TimeUnit.SECONDS);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-
-        //taskExecutor.
-        //thread.join();
-        verify(processorMock).handle(eq(toCreate.toFile()), eq(FAKE_CAMERA_NAME), any(String.class));
     }
 
 }

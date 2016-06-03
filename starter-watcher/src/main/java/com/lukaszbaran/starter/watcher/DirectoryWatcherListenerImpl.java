@@ -1,5 +1,6 @@
 package com.lukaszbaran.starter.watcher;
 
+import com.lukaszbaran.starter.log.RepositoryLog;
 import com.lukaszbaran.starter.processing.PictureProcessor;
 import com.lukaszbaran.starter.processing.ProcessingException;
 import org.apache.commons.lang3.StringUtils;
@@ -19,11 +20,8 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
     private Set<CameraDescription> cameraDescriptions;
     private DirectoryWatcher directoryWatcher;
     private PictureProcessor pictureProcessor;
+    private RepositoryLog repositoryLog;
 
-    /**
-     * Path passed to this method should be absolute.
-     * @param path
-     */
     @Override
     public void onEvent(Path path) {
         if (path == null || StringUtils.isEmpty(path.toString())) {
@@ -49,12 +47,13 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
         }
 
         if (pictureProcessor != null) {
-            LOGGER.debug("handlePicture start");
-
             try {
+                if (repositoryLog.isAlreadyStored(file)) {
+                    LOGGER.info("File " + file + " already processed!");
+                    return;
+                }
                 pictureProcessor.handle(file, constructSubject(path.toString()), constructBody());
-                // TODO if successful should add information to MySQL log
-
+                repositoryLog.remember(file);
             } catch (ProcessingException e) {
                 // TODO think about adding the message to Non-Processed-Queue
                 LOGGER.error("EMAIL not sent!");
@@ -121,6 +120,10 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
 
     public void setPictureProcessor(PictureProcessor pictureProcessor) {
         this.pictureProcessor = pictureProcessor;
+    }
+
+    public void setRepositoryLog(RepositoryLog repositoryLog) {
+        this.repositoryLog = repositoryLog;
     }
 
 
