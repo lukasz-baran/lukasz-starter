@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+        <bean id="cameraStrych" class="com.lukaszbaran.starter.watcher.CameraDescription">
+            <constructor-arg index="0" value="strych"/>
+            <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.11_001212a67271"/>
+        </bean>
+    <!--
+        <bean id="cameraDrzwi" class="com.lukaszbaran.starter.watcher.CameraDescription">
+            <constructor-arg index="0" value="drzwi"/>
+            <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.12_00121292c6c4"/>
+        </bean>
+        <bean id="cameraAltana" class="com.lukaszbaran.starter.watcher.CameraDescription">
+            <constructor-arg index="0" value="altana"/>
+            <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.13_00121315d7f4"/>
+        </bean>
+        <bean id="cameraPodworko" class="com.lukaszbaran.starter.watcher.CameraDescription">
+            <constructor-arg index="0" value="podworko"/>
+            <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.14_00121315cbf5"/>
+        </bean>
+        -->
+
+        <util:set id="cameraDescriptions" value-type="com.lukaszbaran.starter.watcher.CameraDescription">
+            <ref bean="cameraStrych" />
+           <!-- <ref bean="cameraDrzwi" />
+            <ref bean="cameraAltana" />
+            <ref bean="cameraPodworko" />-->
+        </util:set>
+
+</beans>

@@ -3,6 +3,7 @@ package com.lukaszbaran.starter.watcher;
 import com.lukaszbaran.starter.log.RepositoryLog;
 import com.lukaszbaran.starter.processing.PictureProcessor;
 import com.lukaszbaran.starter.processing.ProcessingException;
+import com.lukaszbaran.starter.validator.JPGFileValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -21,6 +22,7 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
     private DirectoryWatcher directoryWatcher;
     private PictureProcessor pictureProcessor;
     private RepositoryLog repositoryLog;
+    private JPGFileValidator fileValidator;
 
     @Override
     public void onEvent(Path path) {
@@ -52,6 +54,10 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
                     LOGGER.info("File " + file + " already processed!");
                     return;
                 }
+                if (!fileValidator.isValid(file)) {
+                    return;
+                }
+
                 pictureProcessor.handle(file, constructSubject(path.toString()), constructBody());
                 repositoryLog.remember(file);
             } catch (ProcessingException e) {
@@ -126,5 +132,8 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
         this.repositoryLog = repositoryLog;
     }
 
+    public void setFileValidator(JPGFileValidator fileValidator) {
+        this.fileValidator = fileValidator;
+    }
 
 }

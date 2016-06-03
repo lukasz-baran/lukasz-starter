@@ -12,44 +12,8 @@
           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
 
     <mvc:annotation-driven />
-
-
     <context:property-placeholder location="classpath*:watcher.properties"/>
-
-<!--    <bean id="cameraStrych" class="com.lukaszbaran.starter.watcher.CameraDescription">
-        <constructor-arg index="0" value="strych"/>
-        <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.11_001212a67271"/>
-    </bean>
-    <bean id="cameraDrzwi" class="com.lukaszbaran.starter.watcher.CameraDescription">
-        <constructor-arg index="0" value="drzwi"/>
-        <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.12_00121292c6c4"/>
-    </bean>
-    <bean id="cameraAltana" class="com.lukaszbaran.starter.watcher.CameraDescription">
-        <constructor-arg index="0" value="altana"/>
-        <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.13_00121315d7f4"/>
-    </bean>
-    <bean id="cameraPodworko" class="com.lukaszbaran.starter.watcher.CameraDescription">
-        <constructor-arg index="0" value="podworko"/>
-        <constructor-arg index="1" value="${starter.watcher.dir2watch}/192.168.1.14_00121315cbf5"/>
-    </bean>
-
-    <util:set id="cameraDescriptions" value-type="com.lukaszbaran.starter.watcher.CameraDescription">
-        <ref bean="cameraStrych" />
-        <ref bean="cameraDrzwi" />
-        <ref bean="cameraAltana" />
-        <ref bean="cameraPodworko" />
-    </util:set>-->
-
-
-    <bean id="cameraPodworko" class="com.lukaszbaran.starter.watcher.CameraDescription">
-        <constructor-arg index="0" value="podworko"/>
-        <constructor-arg index="1" value="${starter.watcher.dir2watch}"/>
-    </bean>
-
-    <util:set id="cameraDescriptions" value-type="com.lukaszbaran.starter.watcher.CameraDescription">
-        <ref bean="cameraPodworko" />
-    </util:set>
-
+    <import resource="camera-descriptions-context.xml" />
 
     <bean id="watcher" class="com.lukaszbaran.starter.watcher.DirectoryWatcher">
         <property name="dir2watch" ref="cameraDescriptions" />
@@ -80,9 +44,12 @@
         <property name="directoryWatcher" ref="watcher" />
         <property name="pictureProcessor" ref="emailProcessor" />
         <property name="repositoryLog" ref="repositoryLog" />
+        <property name="fileValidator" ref="fileValidator" />
     </bean>
 
     <bean id="repositoryLog" class="com.lukaszbaran.starter.log.RepositoryLog" />
+
+    <bean id="fileValidator" class="com.lukaszbaran.starter.validator.JPGFileValidator" />
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
