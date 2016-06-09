@@ -51,7 +51,7 @@
 
     <bean id="fileValidator" class="com.lukaszbaran.starter.validator.JPGFileValidator" />
 
-    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+<!--    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
         <property name="prefix" value="/WEB-INF/jsp/" />
         <property name="suffix" value=".jsp" />
@@ -59,6 +59,12 @@
     
     <bean class="com.lukaszbaran.starter.ui.HelloController">
         <property name="directoryWatcher" ref="watcher" />
+    </bean>-->
+
+    <bean id="userService" class="com.lukaszbaran.starter.services.UserServiceImpl" />
+
+    <bean id="userRestService" class="com.lukaszbaran.starter.rest.UserRestService">
+        <constructor-arg index="0" ref="userService"/>
     </bean>
 
 </beans>
