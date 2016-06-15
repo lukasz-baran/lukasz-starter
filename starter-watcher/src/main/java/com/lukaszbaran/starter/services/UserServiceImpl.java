@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int getNumberOfUsers() {
-        return 0;
+        LOGGER.info("getNumberOfUsers()");
+        return 13;
     }
 }
