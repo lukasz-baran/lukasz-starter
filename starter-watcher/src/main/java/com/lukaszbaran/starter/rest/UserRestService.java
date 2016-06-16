@@ -25,12 +25,13 @@ public class UserRestService {
 
     @GET
     @Path("numberOfUsers")
-    @Produces(MediaType.APPLICATION_JSON)
-    public int getNumberOfUsers() {
+    @Produces(MediaType.TEXT_PLAIN)
+    public Integer getNumberOfUsers() {
         return userService.getNumberOfUsers();
     }
 
     @GET
+    @Path("getAll")
     @Produces(MediaType.APPLICATION_JSON)
     public List<User> getAllUsersInJSON() {
         return userService.getAllUsers();

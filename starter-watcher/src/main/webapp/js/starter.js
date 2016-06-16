@@ -32,10 +32,10 @@ function secondCtrl($scope, Data) {
 
 APP.controller('usersCtrl', function($scope, $http) {
     $scope.loadUsers = function() {
-		//$http.get("users/numberOfUsers").success(function(data) {
-//			$scope.friends = data;
-		//}).error(function() {
-//			alert("fuck");
-//		});
+		$http.get("rest/users/numberOfUsers").success(function(data) {
+			$scope.friends = data;
+		}).error(function() {
+			alert("fuck");
+		});
    }
 });

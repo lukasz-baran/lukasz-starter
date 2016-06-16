@@ -10,5 +10,5 @@ public interface UserService {
     User createNewUser(User user);
     User update(User user);
     void remove(int id);
-    int getNumberOfUsers();
+    Integer getNumberOfUsers();
 }
