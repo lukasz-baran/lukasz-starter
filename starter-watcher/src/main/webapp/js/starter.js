@@ -1,6 +1,4 @@
 var APP = angular.module('APP', []);
-
-
 anotherController = function ($scope) {
     $scope.name = '...';
     $scope.sayHelloWorld = function() {
@@ -9,14 +7,9 @@ anotherController = function ($scope) {
 	$scope.ludzie = ["Andrzej", "Sebastian", "Kamil"];
 };
 
-//APP.controller('returnList', function ($scope){
-//  $scope.ludzie = ["Andrzej", "Sebastian", "Kamil"];
-//});
-
 APP.factory('Data', function() {
     return {message:"I'm data from a service"}
 })
-
 
 function firstCtrl($scope, Data) {
 	$scope.data = Data;
@@ -30,12 +23,18 @@ function secondCtrl($scope, Data) {
 	}
 }
 
-APP.controller('usersCtrl', function($scope, $http) {
-    $scope.loadUsers = function() {
-		$http.get("rest/users/numberOfUsers").success(function(data) {
-			$scope.friends = data;
-		}).error(function() {
-			alert("fuck");
+APP.controller('monitoringCtrl',
+	function($scope, $http) {
+		$http.get("rest/monitoring/getAll")
+		.then(function(response) {
+			$scope.myData = response.data;
 		});
-   }
-});
+
+		$scope.control = function(parameter) {
+			$http.get("rest/monitoring/" + parameter).then(function(response) {
+				//$scope.userData = response.data;
+			})
+		};
+	}
+);
+

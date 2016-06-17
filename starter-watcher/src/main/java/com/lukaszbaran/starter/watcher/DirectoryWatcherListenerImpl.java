@@ -32,7 +32,6 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
         String strPath = path.toString();
         LOGGER.info("triggered on " + strPath);
         if (strPath.endsWith("jpg")) {
-            LOGGER.info("new image detected - send it");
             handlePicture(path);
         } else {
             // a new dir was created - add monitoring for that dir
@@ -57,6 +56,8 @@ public class DirectoryWatcherListenerImpl implements DirectoryWatcherListener {
                 if (!fileValidator.isValid(file)) {
                     return;
                 }
+
+                LOGGER.info("new VALID image " + file + " detected - send it");
 
                 pictureProcessor.handle(file, constructSubject(path.toString()), constructBody());
                 repositoryLog.remember(file);

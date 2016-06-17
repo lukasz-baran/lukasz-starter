@@ -113,6 +113,10 @@ public class DirectoryWatcher implements InitializingBean, Runnable, DisposableB
         this.listener = listener;
     }
 
+    public boolean getIsRunning() {
+        return isRunning;
+    }
+
     @Override
     public void destroy() throws Exception {
         LOGGER.warn("Stopping DirectoryWatcher");

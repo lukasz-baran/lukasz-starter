@@ -51,20 +51,13 @@
 
     <bean id="fileValidator" class="com.lukaszbaran.starter.validator.JPGFileValidator" />
 
-<!--    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
-        <property name="prefix" value="/WEB-INF/jsp/" />
-        <property name="suffix" value=".jsp" />
-    </bean>
-    
-    <bean class="com.lukaszbaran.starter.ui.HelloController">
+    <bean id="monitoringService" class="com.lukaszbaran.starter.services.MonitoringServiceImpl">
+        <property name="cameraDescriptions" ref="cameraDescriptions" />
         <property name="directoryWatcher" ref="watcher" />
-    </bean>-->
+    </bean>
 
-    <bean id="userService" class="com.lukaszbaran.starter.services.UserServiceImpl" />
-
-    <bean id="userRestService" class="com.lukaszbaran.starter.rest.UserRestService">
-        <constructor-arg index="0" ref="userService"/>
+    <bean id="monitoringRestService" class="com.lukaszbaran.starter.rest.MonitoringRestService">
+        <constructor-arg index="0" ref="monitoringService"/>
     </bean>
 
 </beans>
