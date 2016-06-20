@@ -20,9 +20,6 @@ public class GenericHibernateDAO<E> implements HibernateDAO<E> {
         this.entityClass = entityClass;
     }
 
-    public GenericHibernateDAO() {
-    }
-
     protected Session getSession() throws HibernateException {
         return sessionFactory.getCurrentSession();
     }

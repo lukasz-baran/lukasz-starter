@@ -11,10 +11,9 @@
 
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
         <property name="url">
-            jdbc:mysql://localhost:3306/lukasz?autoReconnect=true&useSSL=false&user=lukaszb&password=k0szmar&serverTimezone=UTC
-            <value>jdbc:hsqldb:mem:testDB;sql.syntax_ora=true</value>
+            <value>jdbc:mysql://localhost:3306/lukasz?autoReconnect=true&amp;useSSL=false&amp;user=lukaszb&amp;password=k0szmar&amp;serverTimezone=UTC</value>
         </property>
         <property name="username" value="lukaszb"/>
         <property name="password" value="k0szmar"/>
@@ -29,36 +28,36 @@
         </tx:attributes>
     </tx:advice>
 
-    <bean id="annotatedTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <bean id="annotatedTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="annotatedSessionFactory"/>
     </bean>
 
-    <bean name="annotatedSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+    <bean name="annotatedSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="hibernateProperties">
             <props>
-                <prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
                 <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
                 <prop key="hibernate.show_sql">false</prop>
                 <prop key="hibernate.jdbc.batch_size">30</prop>
             </props>
         </property>
-        <property name="configurationClass" value="org.hibernate.cfg.Configuration" />
         <property name="annotatedClasses">
             <list>
                 <value>com.lukaszbaran.starter.api.Przewoznik</value>
+                <value>com.lukaszbaran.starter.api.Camera</value>
             </list>
         </property>
     </bean>
 
     <aop:config>
         <aop:pointcut id="hibernatePointcut"
-                      expression="execution(public * com.sabre.ems.dao..*.*(..))"/>
+                      expression="execution(public * com.lukaszbaran.starter.dao..*.*(..))"/>
 
         <aop:advisor advice-ref="txAdvice"
                      pointcut-ref="hibernatePointcut"/>
 
-        <aop:aspect ref="timeoutInterceptor">
+<!--        <aop:aspect ref="timeoutInterceptor">
             <aop:around pointcut-ref="hibernatePointcut"
                         method="invoke"/>
         </aop:aspect>
@@ -66,7 +65,7 @@
         <aop:aspect ref="retryInterceptor">
             <aop:around pointcut-ref="hibernatePointcut"
                         method="invoke"/>
-        </aop:aspect>
+        </aop:aspect>-->
     </aop:config>
 
 <!--
@@ -87,5 +86,8 @@
         <constructor-arg ref="annotatedSessionFactory"/>
     </bean>
 
+    <bean name="cameraDAO" class="com.lukaszbaran.starter.dao.impl.CameraDAO">
+        <constructor-arg ref="annotatedSessionFactory"/>
+    </bean>
 
 </beans>
