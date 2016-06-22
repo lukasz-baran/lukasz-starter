@@ -6,6 +6,8 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,6 +38,7 @@ public class GenericHibernateDAO<E> implements HibernateDAO<E> {
     }
 
     @Override
+    @Transactional(propagation=Propagation.REQUIRED)
     public E save(E e) throws HibernateException {
         LOGGER.debug("LOGGER - saving object");
         getSession().saveOrUpdate(e);
@@ -44,6 +47,7 @@ public class GenericHibernateDAO<E> implements HibernateDAO<E> {
     }
 
     @Override
+    @Transactional(propagation=Propagation.REQUIRED)
     public void saveAll(List<E> list) throws HibernateException {
         if (list != null && list.size() > 0) {
             for (E e : list) {

@@ -22,13 +22,8 @@
         <property name="maxIdle" value="10"/>
     </bean>
 
-    <tx:advice id="txAdvice" transaction-manager="annotatedTransactionManager">
-        <tx:attributes>
-            <tx:method name="*"/>
-        </tx:attributes>
-    </tx:advice>
 
-    <bean id="annotatedTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="annotatedSessionFactory"/>
     </bean>
 
@@ -40,6 +35,7 @@
                 <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
                 <prop key="hibernate.show_sql">false</prop>
                 <prop key="hibernate.jdbc.batch_size">30</prop>
+                <!--<prop key="hibernate.current_session_context_class">thread</prop>-->
             </props>
         </property>
         <property name="annotatedClasses">
@@ -50,37 +46,7 @@
         </property>
     </bean>
 
-    <aop:config>
-        <aop:pointcut id="hibernatePointcut"
-                      expression="execution(public * com.lukaszbaran.starter.dao..*.*(..))"/>
-
-        <aop:advisor advice-ref="txAdvice"
-                     pointcut-ref="hibernatePointcut"/>
-
-<!--        <aop:aspect ref="timeoutInterceptor">
-            <aop:around pointcut-ref="hibernatePointcut"
-                        method="invoke"/>
-        </aop:aspect>
-
-        <aop:aspect ref="retryInterceptor">
-            <aop:around pointcut-ref="hibernatePointcut"
-                        method="invoke"/>
-        </aop:aspect>-->
-    </aop:config>
-
-<!--
-    <bean name="timeoutInterceptor"
-          class="com.sabre.ems.dao.HibernateTimeoutInterceptor">
-        <property name="factory" ref="annotatedSessionFactory"/>
-        <property name="timeout" value="30"/>
-    </bean>
-
-    <bean name="retryInterceptor"
-          class="com.sabre.ems.dao.HibernateRetryInterceptor">
-        <property name="retries" value="3"/>
-        <property name="sleepBetweenRetries" value="3"/>
-    </bean>
--->
+    <tx:annotation-driven transaction-manager="transactionManager"  />
 
     <bean name="przewoznikDAO" class="com.lukaszbaran.starter.dao.impl.PrzewoznikDAO">
         <constructor-arg ref="annotatedSessionFactory"/>

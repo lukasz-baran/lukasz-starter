@@ -11,7 +11,6 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:dao-context.xml" })
-//@Transactional(propagation = Propagation.REQUIRED)
 public class CameraDAOImplTest {
 
     @Resource(name = "cameraDAO")
