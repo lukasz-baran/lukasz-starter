@@ -1,13 +1,17 @@
 package com.lukaszbaran.starter.dao.impl;
 
 import com.lukaszbaran.starter.api.Camera;
-import com.lukaszbaran.starter.dao.GenericHibernateDAO;
 import com.lukaszbaran.starter.dao.ICameraDAO;
-import org.hibernate.SessionFactory;
+import org.hibernate.HibernateException;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-public class CameraDAO extends GenericHibernateDAO<Camera> implements ICameraDAO {
+import java.util.List;
 
-    public CameraDAO(SessionFactory factory) {
-        super(factory, Camera.class);
+public class CameraDAO extends HibernateDaoSupport implements ICameraDAO {
+
+    @Override
+    public List<Camera> getAll() throws HibernateException {
+        return getHibernateTemplate().loadAll(Camera.class);
     }
+
 }
