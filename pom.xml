@@ -15,6 +15,7 @@
         <module>starter-dao</module>
         <module>starter-api</module>
         <module>starter-watcher</module>
+        <module>starter-rest</module>
     </modules>
 
     <properties>
@@ -39,8 +40,10 @@
         <mail.version>1.4</mail.version>
         <javax.resource.connector.scope>provided</javax.resource.connector.scope>
         <wsdl4j.version>1.6.2</wsdl4j.version>
-        <cxf.version>2.3.3</cxf.version>
+        <cxf.version>2.5.2</cxf.version>
         <cxf.scope>compile</cxf.scope>
+        <slf4j.version>1.6.1</slf4j.version>
+        <server.port>8080</server.port>
 
         <jersey.version>1.19.1</jersey.version>
 
@@ -141,8 +144,8 @@
 
             <dependency>
                 <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>2.5</version>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.0.1</version>
             </dependency>
             <dependency>
                 <groupId>aopalliance</groupId>
